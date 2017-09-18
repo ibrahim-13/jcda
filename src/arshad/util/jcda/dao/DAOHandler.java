@@ -68,7 +68,7 @@ public class DAOHandler implements InvocationHandler {
         String query = ((Query)ann).sql();
         int token = ((Query)ann).token();
         
-        if(args.length > 0) {
+        if(args != null && args.length > 0) {
             Annotation[][] paramAnn = method.getParameterAnnotations();
             
             int count = 0;

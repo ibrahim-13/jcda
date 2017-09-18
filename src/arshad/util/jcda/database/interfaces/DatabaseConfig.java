@@ -78,4 +78,10 @@ public interface DatabaseConfig {
      */
     public DB_TYPE TYPE();
     
+    /**
+     * Get file for offline(sqlite) database
+     * @return Database file name
+     */
+    public String FILENAME();
+    
 }

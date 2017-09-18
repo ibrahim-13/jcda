@@ -31,28 +31,33 @@
 
 package arshad.util.jcda.database;
 
-import arshad.util.jcda.database.interfaces.QueryResult;
-import arshad.util.jcda.database.interfaces.DatabaseAccess;
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.Statement;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+
+import arshad.util.jcda.database.interfaces.DatabaseAccess;
+import arshad.util.jcda.database.interfaces.QueryResult;
+import java.sql.ResultSetMetaData;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Database instance to use MySQL database.
+ * Database instance to use SQLite database.
  * @author Arshad
  */
-public final class MySQLDatabase implements DatabaseAccess {
+public class SQLiteDatabase implements DatabaseAccess {
     
-    private String DB_NAME = "ast_device_data";
-    private String DB_IP = "localhost";
-    private String DB_PORT = "3306";
-    private String DB_USERNAME = "root";
-    private String DB_PASSWORD = "";
+    private final String dbFileLocation;
+    
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC").newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+    }
     
     private Connection dbConn;
     private Statement dbStmt;
@@ -60,31 +65,15 @@ public final class MySQLDatabase implements DatabaseAccess {
     
     private boolean isConnected = false;
     
-    static {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     /**
-     * Constructor for MySQLDatabase class. This class handles everything related to MySQL database.
+     * Constructor for SQLiteDatabase class. This class handles everything related to SQLite database.
      * 
-     * @param dbName Database name
-     * @param dbIP IP or address of the host
-     * @param dbPort Port to connect to the database. (Ex. 3306)
-     * @param user Username for the database access
-     * @param pass Password for the database access
+     * @param dbName Database file name or location
      */
-    public MySQLDatabase(String dbName, String dbIP, String dbPort, String user, String pass) {
-        DB_NAME = dbName;
-        DB_IP = dbIP;
-        DB_PORT = dbPort;
-        DB_USERNAME = user;
-        DB_PASSWORD = pass;
+    public SQLiteDatabase(String dbName) {
+        this.dbFileLocation = dbName;
     }
-    
+
     @Override
     public boolean checkConnection() {
         if(dbStmt == null) {
@@ -101,12 +90,12 @@ public final class MySQLDatabase implements DatabaseAccess {
         }
         return isConnected;
     }
-    
+
     @Override
     public void connect() {
         if(!isConnected) {
             try {
-                dbConn = (Connection) DriverManager.getConnection("jdbc:mysql://" + DB_IP + ":" + DB_PORT + "/" + DB_NAME, DB_USERNAME, DB_PASSWORD);
+                dbConn = (Connection) DriverManager.getConnection("jdbc:sqlite:" + dbFileLocation);
                 dbStmt = (Statement) dbConn.createStatement();
                 isConnected = true;
             } catch (SQLException ex) {
@@ -164,4 +153,5 @@ public final class MySQLDatabase implements DatabaseAccess {
             return null;
         }
     }
+    
 }

@@ -77,6 +77,9 @@ public class DatabaseManager {
             case MySQL: {
                 return new MySQLDatabase(config.NAME(), config.IP(), config.PORT(), config.USERNAME(), config.PASSRORD());
             }
+            case SQLite: {
+                return new SQLiteDatabase(config.FILENAME());
+            }
         }
         return null;              
     }
